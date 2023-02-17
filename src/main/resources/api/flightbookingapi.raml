@@ -1,0 +1,115 @@
+#%RAML 1.0
+title: flightbookingapi
+version: v1
+baseUri: http://localhost:8081
+
+documentation:
+  - !include documentation/flightbookingDoc.raml
+  
+resourceTypes: 
+    FlightsCollection: !include resourceTypes/FlightsCollection.raml  
+
+types:
+  Account: !include datatypes/Account.raml
+  AccountResponse: !include datatypes/AccountResponse.raml
+  IndigoFlight: !include datatypes/IndigoFlight.raml
+  AirIndiaFlight: !include datatypes/AirIndiaFlight.raml
+  
+#traits:
+  #errorResonses: !include /traits/errorResponses.raml  
+
+uses: 
+  Traits: libraries/TraitsLibrary.raml  
+
+
+  
+securitySchemes: 
+  customTokenSecurity: !include securitySchemes/customTokenSecurity.raml
+securedBy: customTokenSecurity  
+          
+
+/account:
+  post:
+    is:
+      - Traits.errorResponses
+    description: create a customer account  
+    body:
+      application/json:
+        type: Account
+        example: !include examples/AccountExample.raml
+    responses:
+      201:
+        body:
+          application/json:
+              type: AccountResponse
+              example: !include examples/AccountResponseExample.raml
+  get:
+      is:
+        Traits.paginated
+      responses:
+        200:
+          body:
+            application/json:
+               type: Account[]
+                
+  /{accountId}:
+    get:
+      is:
+      - Traits.errorResponses
+      description: Update a account by account ID
+      responses:
+        200:
+          body:
+            application/json:
+              type: Account
+              example: !include examples/AccountExample.raml           
+    patch:
+      is:
+      - Traits.errorResponses
+      description: Update a account by account ID 
+      body:
+        application/json:
+      responses:
+        200:
+          body:
+            application/json:
+              type: AccountResponse
+              example: !include examples/AccountResponseExample.raml
+    delete:
+       is:
+       - Traits.errorResponses
+       description: Delete a account by account ID
+       responses:
+        200:
+          body:
+            application/json:
+                 type: AccountResponse
+                 example: !include examples/AccountResponseExample.raml                     
+ 
+                                                                                                                               
+/indigoFlights:
+  
+  type: FlightsCollection
+                
+/airIndiaFlights:
+  type: FlightsCollection
+
+
+
+/searchAllFlights:
+  get:
+    is:
+      - Traits.errorResponses
+    queryParameters:
+      source:
+        example: MUM
+      destination:
+        example: DEL
+      doj: 
+        example: 30-Dec-2022
+    responses:    
+      200:
+         body:
+           application/json: 
+            example:
+                                          

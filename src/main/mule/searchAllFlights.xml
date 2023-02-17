@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="searchAllFlightsFlow" doc:id="609011fc-e8dc-4787-bcaa-b5cb5e8c2d10" >
+		<logger level="INFO" doc:name="Logger" doc:id="a2fd88e8-87c3-4eff-b750-a3d509bc7f99" />
+		<scatter-gather doc:name="Scatter-Gather" doc:id="2832e817-1d5c-48e1-8f6d-27723728ee59" >
+			<route >
+				<try doc:name="Try" doc:id="6d9f3dcd-6271-483c-9397-019fc3800038" >
+					<flow-ref doc:name="indigoFlightsFlow" doc:id="3df5c598-24de-4656-b74a-fce0d5771360" name="indigoFlightsFlow" />
+					<error-handler >
+						<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="15412e33-3d66-43e7-9cc5-a48b7b0314c7" >
+							<logger level="INFO" doc:name="Logger" doc:id="b2227fbb-a4f0-4a57-bf02-a22fc579cda9" />
+						</on-error-continue>
+					</error-handler>
+				</try>
+			</route>
+			<route >
+				<try doc:name="Try" doc:id="80d76be9-abb8-4173-8a73-d2939afde28f" >
+					<flow-ref doc:name="airIndiaFlightsHTTPRequestFlow" doc:id="a297ab71-b72b-467a-91d9-cdaca1b331af" name="airIndiaFlightsByWSConsumerFlow" />
+					<error-handler >
+						<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="14664ed5-5a84-4d4d-b76d-2e80d34f2cd8" >
+							<logger level="INFO" doc:name="Logger" doc:id="cf2a7fb6-c790-466c-842f-6acda491901c" />
+						</on-error-continue>
+					</error-handler>
+				</try>
+			</route>
+		</scatter-gather>
+		<logger level="INFO" doc:name="Logger" doc:id="439e1762-9946-4514-b12c-9dba60a2148a" message="Resonse of scatter Gather --------- #[payload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="a4e5e7bc-5ae9-449d-99c1-667573201bc7">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	indigoAirlines: payload[0].payload,
+	airIndiaAirlines: payload[1].payload
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

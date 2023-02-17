@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="updateAccountFlow" doc:id="4cfba56b-cbcd-4cf7-9ca0-f8c2c5e83c8d" >
+		<logger level="INFO" doc:name="Logger" doc:id="89ca9350-cf50-4b62-8aef-9f475ec6a24b" />
+		<db:update doc:name="Update" doc:id="aa69419c-460b-4664-815f-503bbd730a85" config-ref="Database_Config" autoGenerateKeys="true">
+			<db:sql ><![CDATA[update account set phone=:phone,email=:email where accountId=:accountId
+]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	accountId:attributes.uriParams.accountId,
+	phone:payload.phoneNo,
+	email:payload.emailId
+}]]]></db:input-parameters>
+		</db:update>
+		<ee:transform doc:name="Transform Message" doc:id="d67873e4-0aec-4074-bcaf-e8a54863d781" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	statusCode:200,
+	message: "Account updated successfully with Id " ++ vars.accountId as String
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

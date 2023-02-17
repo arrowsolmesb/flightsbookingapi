@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" 
+	  xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	
+	
+	
+	<http:request-config name="HTTP_AirIndia_Request_configuration" doc:name="HTTP Request configuration" doc:id="823c5e63-6cd5-4f1b-8381-71f14b3a066d" >
+		<http:request-connection host="airindia-flights.us-e2.cloudhub.io" port="80" />
+	</http:request-config>
+	<flow name="airIndiaFlightsByWSConsumerFlow" doc:id="9523bb1a-f913-48de-8470-490d363b5855" >
+		<logger level="INFO" doc:name="Logger" doc:id="6af6cb23-0cdd-4f0d-8129-5cba9b2f2582" message="Request received-------- #[attributes.queryParams]"/>
+		<ee:transform doc:name="Transform Message" doc:id="725ee7d2-78f2-4071-ba96-f595954bd629" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://soap.training.mulesoft.com/
+---
+{
+	ns0#getFlights: {
+		from: attributes.queryParams.source as String,
+		to: attributes.queryParams.destination as String,
+		depatureDate: attributes.queryParams.doj as String
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<wsc:consume doc:name="Consume" doc:id="a37f4700-385b-4765-b389-f2fd054072cf" config-ref="Web_Service_Consumer_Config" operation="getFlights"/>
+		<ee:transform doc:name="Transform Message" doc:id="4f8e1e4a-177d-4618-81ab-41751b016c92" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+ns ns0 http://soap.training.mulesoft.com/
+---
+payload.body.ns0#getFlightsResponse.*return map ( return , indexOfReturn ) -> {
+	Id: return.ID default 0,
+	airlineName: return.airline default "",
+	fCode: return.flightCode default "",
+	fromAirportCode: return.fromAirportCode default "",
+	toAirportCode: return.toAirportCode default "",
+	departureDate: return.departureDate default "",
+	emptySeats: return.emptySeats default 0,
+	totalSeats: return.totalSeats as Number default 0,
+	price: return.price default 0
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="5c358478-8d74-4c63-bdff-4918f81ef535" message="response from airindia airlines-------- #[payload]"/>
+	</flow>
+	<flow name="airIndiaFlightsHTTPRequestFlow" doc:id="04ab9833-75d5-4a80-8533-9b01c3191682" >
+		<logger level="INFO" doc:name="Logger" doc:id="00519c97-761d-4c8d-9a30-307a6e1483a6" message="Request received-------- #[attributes.queryParams]" />
+		<parse-template doc:name="Parse Template" doc:id="fdd0e31a-2a2c-4f67-969f-61cf745592e6" outputMimeType="application/xml">
+			<content >&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:soap=&quot;http://soap.training.mulesoft.com/&quot;&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;soap:getFlights&gt;
+         &lt;from&gt;#[attributes.queryParams.source]&lt;/from&gt;
+         &lt;to&gt;#[attributes.queryParams.destination]&lt;/to&gt;
+         &lt;depatureDate&gt;#[attributes.queryParams.doj]&lt;/depatureDate&gt;
+      &lt;/soap:getFlights&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</content>
+		</parse-template>
+		<http:request method="POST" doc:name="Request" doc:id="df22c387-7924-4c61-a908-a4fb0711e972" config-ref="HTTP_AirIndia_Request_configuration" path="/airindia"/>
+		<logger level="INFO" doc:name="Copy_of_Logger" doc:id="8d9d670b-d993-44e3-9f8f-1cb19f72e725" message="response from airindia airlines-------- #[payload]" />
+	</flow>
+</mule>

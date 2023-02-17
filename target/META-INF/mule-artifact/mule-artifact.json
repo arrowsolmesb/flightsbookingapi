@@ -1,0 +1,69 @@
+{
+  "configs": [
+    "accountDetails.xml",
+    "airIndiaFlights.xml",
+    "globalConfig.xml",
+    "indigoFlights.xml",
+    "searchAllFlights.xml",
+    "createAccount.xml",
+    "deleteAccount.xml",
+    "flightbookingapi.xml",
+    "updateAccount.xml"
+  ],
+  "secureProperties": [],
+  "redeploymentEnabled": true,
+  "name": "3cd6d480-ee32-4058-b3f1-0277c932a9e7:flightbookingapi:1.0.0",
+  "minMuleVersion": "4.3.0",
+  "requiredProduct": "MULE_EE",
+  "classLoaderModelLoaderDescriptor": {
+    "id": "mule",
+    "attributes": {
+      "exportedPackages": [],
+      "exportedResources": [
+        "accountDetails.xml",
+        "airIndiaFlights.xml",
+        "api/datatypes/Account.raml",
+        "api/datatypes/AccountResponse.raml",
+        "api/datatypes/AirIndiaFlight.raml",
+        "api/datatypes/IndigoFlight.raml",
+        "api/datatypes.zip",
+        "api/documentation/flightbookingDoc.raml",
+        "api/examples/AccountExample.raml",
+        "api/examples/AccountResponseExample.raml",
+        "api/examples/AirIndiaFlightsExample.raml",
+        "api/examples/errorResponse/400.json",
+        "api/examples/errorResponse/401.json",
+        "api/examples/errorResponse/404.json",
+        "api/examples/errorResponse/500.json",
+        "api/examples/errorResponse/503.json",
+        "api/examples/IndigoFlightsExample.raml",
+        "api/examples.zip",
+        "api/flightbookingapi.raml",
+        "api/libraries/TraitsLibrary.raml",
+        "api/resourceTypes/FlightsCollection.raml",
+        "api/securitySchemes/customTokenSecurity.raml",
+        "api/traits/errorResponses.raml",
+        "api/traits/pagination.raml",
+        "application-types.xml",
+        "createAccount.xml",
+        "deleteAccount.xml",
+        "flightbookingapi.xml",
+        "globalConfig.xml",
+        "indigoFlights.xml",
+        "log4j2.xml",
+        "properties/flightbooking-dev.properties",
+        "properties/flightbooking-prod.properties",
+        "properties/flightbooking-secure-dev.properties",
+        "properties/flightbooking-secure-stage.properties",
+        "properties/flightbooking-stage.properties",
+        "properties/flightbooking-uat.properties",
+        "searchAllFlights.xml",
+        "updateAccount.xml"
+      ]
+    }
+  },
+  "bundleDescriptorLoader": {
+    "id": "mule",
+    "attributes": {}
+  }
+}

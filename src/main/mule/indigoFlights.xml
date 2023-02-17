@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="indigoFlightsFlow" doc:id="fe74f682-2fc9-4089-ae8a-91fc820ac389" >
+		<logger level="INFO" doc:name="Logger" doc:id="704f337a-d037-4fe6-8db8-29909828ccf0" />
+		<until-successful maxRetries="3" doc:name="Until Successful" doc:id="eb016a77-a6e1-454e-b018-4a7c8dceb836" millisBetweenRetries="10000">
+			<http:request method="GET" doc:name="Request" doc:id="a4a4738a-aeeb-4e0c-af36-d3c7224db0d0" config-ref="HTTP_Request_configuration" path="/api/getFlights">
+			<http:query-params><![CDATA[#[output application/java
+---
+{
+	from : attributes.queryParams.source,
+	to : attributes.queryParams.destination,
+	depatureDate : attributes.queryParams.doj
+}]]]></http:query-params>
+		</http:request>
+		</until-successful>
+		<logger level="INFO" doc:name="Logger" doc:id="7b2e743e-4485-4565-97ef-2be483b5e4d0" message="Response from indigoairlines-------- #[payload]" />
+		<error-handler>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="5d8dd081-727c-46f3-a16e-36ed3eb2e173" >
+				<ee:transform doc:name="Transform Message" doc:id="ce0dd7ff-0ce8-4110-9abf-b25540de0060" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	message:"unable to process your request, pls try after some time"
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+</mule>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
+	xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
+	
+	
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="3e0a23f1-772d-47b6-a31d-8d16f8fec899" >
+		<db:my-sql-connection host="${db.host}" port="${db.port}" user="${db.user}" password="${secure::db.password}" database="${db.schema}" />
+	</db:config>
+
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="d473fa64-38ae-454f-a843-aad3005c23d2" responseTimeout="30000">
+        <http:request-connection host="${indigo.host}" port="${indigo.port}" />
+    </http:request-config>
+	
+	<wsc:config name="Web_Service_Consumer_Config" doc:name="Web Service Consumer Config" doc:id="6d7f782c-ab5d-49df-ab28-ff1d24cf38d1" >
+		<wsc:connection wsdlLocation="http://airindia-flights.us-e2.cloudhub.io/airindia?wsdl" service="TicketServiceService" port="TicketServicePort" address="http://airindia-flights.us-e2.cloudhub.io/airindia" >
+			<wsc:web-service-security actor="http://schemas.xmlsoap.org/soap/actor/next" />
+		</wsc:connection>
+	</wsc:config>
+	
+	<configuration doc:name="Configuration" doc:id="6463a954-e506-489a-8542-e03bf91def4d" defaultErrorHandler-ref="Global_Error_Handler" />
+	<configuration-properties doc:name="Configuration properties" doc:id="2a05e421-026c-460e-b299-6bb852828a0b" file="properties/flightbooking-dev.properties" />
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="4b8e11c2-8abb-47b4-8b24-7f4ab96e942d" file="properties/flightbooking-secure-dev.properties" key="mulesoft" >
+		<secure-properties:encrypt algorithm="Blowfish" />
+	</secure-properties:config>
+	<error-handler name="Global_Error_Handler" doc:id="2d63fec0-db34-4b6a-b9c6-fefef3dfa7d1" >
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="9fbedc2f-2c84-47ef-ae4e-e223b01724c6" type="DB:CONNECTIVITY">
+			<ee:transform doc:name="Transform Message" doc:id="b8a13426-6a33-42d6-8abd-199c4792546d" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	statusCode:500,
+	message: "unable to process your reqeust, due to database is down"
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="79ddce13-42a0-4aab-8754-c65d875370ff" type="ANY">
+			<ee:transform doc:name="Transform Message" doc:id="96736624-3caa-49e3-995d-9ab9044c0fb1" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+		</on-error-propagate>
+	</error-handler>
+</mule>
