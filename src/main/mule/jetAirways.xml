@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+	<flow name="jetAirwaysFlow" doc:id="20c8e1f8-e516-441c-9df4-89e66543278e" >
+		<logger level="INFO" doc:name="Logger" doc:id="b43730b1-c83a-4ef8-b846-a5572cba2a7a" />
+	</flow>
+</mule>
